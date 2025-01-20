@@ -1,3 +1,11 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Applies globally to prevent scrolling */
+}
+
+
 .app {
   display: flex;
   height: 100vh; /* Full height of the viewport */
@@ -5,6 +13,7 @@
   margin: 0;
   overflow: hidden; /* Prevent scrolling */
   position: fixed; /* Fix the element in place */
+
 }
 
 .main {
