@@ -2,4 +2,5 @@
 
 This application is a modern design of how a terminal should ook like.
 
-![Screenshot 2025-01-20 at 1.14.51 PM.png](../../../../var/folders/9s/4hz0g0cj2v18k56_nvtlfcf80000gn/T/TemporaryItems/NSIRD_screencaptureui_X8imf3/Screenshot%202025-01-20%20at%201.14.51%E2%80%AFPM.png)
+
+<img width="810" alt="Screenshot 2025-01-20 at 10 58 52 AM" src="https://github.com/user-attachments/assets/c3650df6-e7f2-4f8d-980d-81b722449871" />
