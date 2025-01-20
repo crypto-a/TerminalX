@@ -21,8 +21,8 @@ function App() {
     // Keep track of all terminals (tab sessions)
     const [terminals, setTerminals] = useState([
         { id: 1, name: "Terminal 1", type: "local" },
-        { id: 2, name: "Terminal 2", type: "local" },
-        { id: 3, name: "Terminal 3", type: "local" },
+        // { id: 2, name: "Terminal 2", type: "local" },
+        // { id: 3, name: "Terminal 3", type: "local" },
     ]);
     // Which terminal tab is currently active
     const [activeTerminalId, setActiveTerminalId] = useState(1);

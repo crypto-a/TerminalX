@@ -1,22 +1,24 @@
-import React, { useState } from "react";
+// src/components/terminal/TerminalX.jsx
+import React, { useState, useEffect, useRef } from "react";
 import "./TerminalX.css";
 import CommandBlock from "./commandblock/CommandBlock.jsx";
 import { invoke } from "@tauri-apps/api/core";
 
-/**
- * A single terminal session component, which runs on either "local" or "ssh" (future).
- *
- * @param {object} props
- * @param {number} props.sessionId - Unique ID for the terminal session
- * @param {string} props.tabName - Display name of this terminal session
- * @param {string} props.type - "local" or "ssh" (currently ignoring SSH)
- */
 const TerminalX = ({ sessionId, tabName, type }) => {
-    // We maintain a list of commands+outputs for THIS particular terminal session
     const [commands, setCommands] = useState([
         { command: `Welcome to ${tabName}!`, output: "" },
     ]);
     const [input, setInput] = useState("");
+
+    // Create a ref for the output container
+    const outputRef = useRef(null);
+
+    useEffect(() => {
+        // Scroll to the bottom whenever commands change
+        if (outputRef.current) {
+            outputRef.current.scrollTop = outputRef.current.scrollHeight;
+        }
+    }, [commands]);
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
@@ -26,11 +28,8 @@ const TerminalX = ({ sessionId, tabName, type }) => {
         e.preventDefault();
         if (!input.trim()) return;
 
-        // Right now, we only demonstrate "local" commands.
-        // In a real SSH scenario, you'd call a different Tauri command or handle differently.
         if (type === "local") {
             try {
-                // call the rust command named "run_local_command"
                 const output = await invoke("run_local_command", { command: input });
                 const newCommand = { command: input, output: output };
                 setCommands((prev) => [...prev, newCommand]);
@@ -40,7 +39,6 @@ const TerminalX = ({ sessionId, tabName, type }) => {
                 setCommands((prev) => [...prev, errorCommand]);
             }
         } else {
-            // For "ssh" you'd do something else
             const newCommand = {
                 command: input,
                 output: "SSH mode not yet implemented.",
@@ -48,7 +46,7 @@ const TerminalX = ({ sessionId, tabName, type }) => {
             setCommands((prev) => [...prev, newCommand]);
         }
 
-        setInput(""); // clear the input field
+        setInput(""); // Clear the input field
     };
 
     const handleCopy = (cmd, out) => {
@@ -60,10 +58,9 @@ const TerminalX = ({ sessionId, tabName, type }) => {
         alert("Pinned the command!");
     };
 
-
     return (
         <div className="terminal-x">
-            <div className="output">
+            <div className="output" ref={outputRef}>
                 {commands.map((cmd, index) => (
                     <CommandBlock
                         key={index}
@@ -86,6 +83,5 @@ const TerminalX = ({ sessionId, tabName, type }) => {
         </div>
     );
 };
-
 
 export default TerminalX;

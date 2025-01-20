@@ -1,4 +1,3 @@
-// CommandBlock.jsx
 import React, { useState } from "react";
 import { AiOutlineCopy, AiOutlineCheck, AiOutlinePushpin, AiFillPushpin } from "react-icons/ai";
 import "./CommandBlock.css";
@@ -19,17 +18,21 @@ const CommandBlock = ({ command, output, onCopy, onPin }) => {
     };
 
     return (
-        <div className="command-block">
-            <div className="command-block-header">
-                <button onClick={handleCopy} className="command-button copy-button">
-                    {copied ? <AiOutlineCheck size={18} /> : <AiOutlineCopy size={18} />}
-                </button>
-                <button onClick={handlePin} className="command-button pin-button">
-                    {pinned ? <AiFillPushpin size={18} /> : <AiOutlinePushpin size={18} />}
-                </button>
+        <div className={`command-block ${output.trim() === "" ? "compact" : ""}`}>
+            <div className="command-line">
+                <span className="command-text">{`> ${command}`}</span>
+                {output.trim() !== "" && (
+                    <div className="command-buttons">
+                        <button onClick={handleCopy} className="command-button copy-button">
+                            {copied ? <AiOutlineCheck size={18} /> : <AiOutlineCopy size={18} />}
+                        </button>
+                        <button onClick={handlePin} className="command-button pin-button">
+                            {pinned ? <AiFillPushpin size={18} /> : <AiOutlinePushpin size={18} />}
+                        </button>
+                    </div>
+                )}
             </div>
-            <div className="command-block-body">
-                <div className="command-text">{`> ${command}`}</div>
+            {output.trim() !== "" && (
                 <div className="output-text">
                     {output.split('\n').map((line, index) => (
                         <span key={index}>
@@ -38,7 +41,7 @@ const CommandBlock = ({ command, output, onCopy, onPin }) => {
                         </span>
                     ))}
                 </div>
-            </div>
+            )}
         </div>
     );
 };
