@@ -1,0 +1,13 @@
+.app {
+  display: flex;
+  height: 100vh; /* Full height of the viewport */
+  width: 100vw;  /* Full width of the viewport */
+  margin: 0;
+  overflow: hidden; /* Prevent scrolling */
+  position: fixed; /* Fix the element in place */
+}
+
+.main {
+  background-color: #000000;
+  width: 100%;
+}

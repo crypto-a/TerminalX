@@ -1,0 +1,44 @@
+/* CommandBlock.css */
+
+.command-block {
+    background-color: #111;
+    border: 1px solid #0f0;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    padding-top: 0.2rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.command-block-header {
+    display: flex;
+    justify-content: flex-end;
+    /*gap: 0.5rem;*/
+    margin-bottom: 1rem;
+}
+
+.command-button {
+    background-color: transparent;
+    color: #0f0;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: color 0.3s;
+}
+
+.command-button:hover {
+    color: #fff;
+}
+
+.command-text {
+    color: #0f0;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.output-text {
+    color: #ccc;
+    white-space: pre-wrap; /* Add this line */
+    font-family: monospace; /* Optional: Enhances the terminal look */
+}
