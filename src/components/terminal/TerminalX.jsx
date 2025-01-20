@@ -5,12 +5,16 @@ import CommandBlock from "./commandblock/CommandBlock.jsx";
 import { invoke } from "@tauri-apps/api/core";
 
 const TerminalX = ({ sessionId, tabName, type }) => {
+    // Each element in `commands` will have a `prompt` (our "path>"), `command`, and `output`
     const [commands, setCommands] = useState([
-        { command: `Welcome to ${tabName}!`, output: "" },
+        { prompt: "", command: `Welcome to ${tabName}!`, output: "" },
     ]);
     const [input, setInput] = useState("");
 
-    // Create a ref for the output container
+    // Keep track of the current directory (truncated) for this terminal session.
+    // Initially, we can fetch it, or just wait until first command to fill it.
+    const [currentPath, setCurrentPath] = useState("");
+
     const outputRef = useRef(null);
 
     useEffect(() => {
@@ -30,16 +34,39 @@ const TerminalX = ({ sessionId, tabName, type }) => {
 
         if (type === "local") {
             try {
-                const output = await invoke("run_local_command", { command: input });
-                const newCommand = { command: input, output: output };
+                // Invoke the Rust command
+                const rawResponse = await invoke("run_local_command", { command: input });
+                // `rawResponse` is actually a string that looks like '{"output":"...","cwd":"..."}'
+                // We parse it:
+                const result = JSON.parse(rawResponse);
+
+                // The output from Rust
+                const commandOutput = result.output;
+                const newCwd = result.cwd;
+
+                // Update the stored currentPath
+                setCurrentPath(newCwd);
+
+                // Build a new “command block” object
+                const newCommand = {
+                    prompt: newCwd ? `${newCwd}` : "", // show the truncated path
+                    command: input,
+                    output: commandOutput,
+                };
                 setCommands((prev) => [...prev, newCommand]);
             } catch (err) {
                 console.error("Failed to run command:", err);
-                const errorCommand = { command: input, output: `Error: ${err}` };
+                const errorCommand = {
+                    prompt: currentPath,
+                    command: input,
+                    output: `Error: ${err}`,
+                };
                 setCommands((prev) => [...prev, errorCommand]);
             }
         } else {
+            // If type is "ssh" or something else
             const newCommand = {
+                prompt: currentPath,
                 command: input,
                 output: "SSH mode not yet implemented.",
             };
@@ -64,7 +91,8 @@ const TerminalX = ({ sessionId, tabName, type }) => {
                 {commands.map((cmd, index) => (
                     <CommandBlock
                         key={index}
-                        command={cmd.command}
+                        // We’ll display something like "[somepath] > user input"
+                        command={`${cmd.prompt ? "[" + cmd.prompt + "] " : ""}${cmd.command}`}
                         output={cmd.output}
                         onCopy={() => handleCopy(cmd.command, cmd.output)}
                         onPin={handlePin}
@@ -72,11 +100,12 @@ const TerminalX = ({ sessionId, tabName, type }) => {
                 ))}
             </div>
             <form onSubmit={handleCommandSubmit} className="input-form">
+                {/* Show the truncated path as part of the “prompt” or placeholder */}
                 <input
                     type="text"
                     value={input}
                     onChange={handleInputChange}
-                    placeholder="Enter command..."
+                    placeholder={currentPath ? `[${currentPath}] $ ` : "Enter command..."}
                     className="input"
                 />
             </form>
