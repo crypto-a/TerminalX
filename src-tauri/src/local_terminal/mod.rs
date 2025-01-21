@@ -1,2 +1,4 @@
+// src-tauri/src/local_terminal/mod.rs
+
 mod state;
-mod local_terminal_facade;
+pub mod local_terminal_facade; // Make the module public

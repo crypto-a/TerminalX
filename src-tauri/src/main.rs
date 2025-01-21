@@ -9,7 +9,8 @@ fn main()
     // Build the Tauri app, registering our commands
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            local_terminal::local_terminal_facade::run_local_command, // Reference the command from the local_terminal module
+            local_terminal::local_terminal_facade::run_local_command,// Reference the command from the local_terminal module
+             ai::ask_direct_question::ask_direct_question,
             // ... add more if needed
         ])
         .run(tauri::generate_context!())

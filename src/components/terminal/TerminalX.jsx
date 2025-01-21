@@ -12,7 +12,6 @@ const TerminalX = ({ sessionId, tabName, type }) => {
     const [input, setInput] = useState("");
 
     // Keep track of the current directory (truncated) for this terminal session.
-    // Initially, we can fetch it, or just wait until first command to fill it.
     const [currentPath, setCurrentPath] = useState("");
 
     const outputRef = useRef(null);
@@ -32,15 +31,22 @@ const TerminalX = ({ sessionId, tabName, type }) => {
         e.preventDefault();
         if (!input.trim()) return;
 
-        if (type === "local") {
-            try {
-                // Invoke the Rust command
-                const rawResponse = await invoke("run_local_command", { command: input });
-                // `rawResponse` is actually a string that looks like '{"output":"...","cwd":"..."}'
-                // We parse it:
-                const result = JSON.parse(rawResponse);
+        // Check if the command starts with "terminalx:"
+        if (input.toLowerCase().startsWith("terminalx:")) {
+            const prompt = input.slice("terminalx:".length).trim();
+            if (!prompt) {
+                // If no prompt is provided after "terminalx:", treat it as a regular command
+                await handleLocalCommand(input);
+                return;
+            }
 
-                // The output from Rust
+            try {
+                // Invoke the AI command
+                const aiResponse = await invoke("ask_direct_question", { prompt });
+
+                // Assuming aiResponse is a JSON string like '{"output":"...","type":"terminal","cwd":"..."}'
+                const result = JSON.parse(aiResponse);
+
                 const commandOutput = result.output;
                 const newCwd = result.cwd;
 
@@ -55,7 +61,7 @@ const TerminalX = ({ sessionId, tabName, type }) => {
                 };
                 setCommands((prev) => [...prev, newCommand]);
             } catch (err) {
-                console.error("Failed to run command:", err);
+                console.error("Failed to get AI response:", err);
                 const errorCommand = {
                     prompt: currentPath,
                     command: input,
@@ -64,16 +70,54 @@ const TerminalX = ({ sessionId, tabName, type }) => {
                 setCommands((prev) => [...prev, errorCommand]);
             }
         } else {
+            // Handle as a local or other type of command
+            await handleLocalCommand(input);
+        }
+
+        setInput(""); // Clear the input field
+    };
+
+    const handleLocalCommand = async (command) => {
+        if (type === "local") {
+            try {
+                // Invoke the Rust command
+                const rawResponse = await invoke("run_local_command", { command });
+                // `rawResponse` is actually a string that looks like '{"output":"...","cwd":"..."}'
+                // We parse it:
+                const result = JSON.parse(rawResponse);
+
+                // The output from Rust
+                const commandOutput = result.output;
+                const newCwd = result.cwd;
+
+                // Update the stored currentPath
+                setCurrentPath(newCwd);
+
+                // Build a new “command block” object
+                const newCommand = {
+                    prompt: newCwd ? `${newCwd}` : "", // show the truncated path
+                    command: command,
+                    output: commandOutput,
+                };
+                setCommands((prev) => [...prev, newCommand]);
+            } catch (err) {
+                console.error("Failed to run command:", err);
+                const errorCommand = {
+                    prompt: currentPath,
+                    command: command,
+                    output: `Error: ${err}`,
+                };
+                setCommands((prev) => [...prev, errorCommand]);
+            }
+        } else {
             // If type is "ssh" or something else
             const newCommand = {
                 prompt: currentPath,
-                command: input,
+                command: command,
                 output: "SSH mode not yet implemented.",
             };
             setCommands((prev) => [...prev, newCommand]);
         }
-
-        setInput(""); // Clear the input field
     };
 
     const handleCopy = (cmd, out) => {
