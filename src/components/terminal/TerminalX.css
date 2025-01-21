@@ -3,7 +3,8 @@
     flex-direction: column;
     background-color: #000;
     color: #0f0;
-    padding: 1rem;
+    padding: 0.5rem;
+    /*padding-right: 1rem;*/
     font-family: "Courier New", Courier, monospace;
     /*border: 2px solid #0f0;*/
     /*border-radius: 10px;*/

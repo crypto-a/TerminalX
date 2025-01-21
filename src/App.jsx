@@ -63,7 +63,7 @@ function App() {
     return (
         <main className="app">
             {/* Our Sidebar with an "Add Terminal" button */}
-            {/*<Sidebar onAddTerminal={handleAddTerminal} />*/}
+            <Sidebar onAddTerminal={handleAddTerminal} />
             <div className="main">
                 {/* The TabBar at the top that shows all terminals */}
                 <TabBar
